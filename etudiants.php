@@ -26,9 +26,35 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   header('Location: etudiants.php'); exit;
 }
 
+// ✅ Novaina — mamafa droit aloha, vao mamafa étudiant
 if ($action==='delete' && !empty($_GET['id'])) {
-  $pdo->prepare("DELETE FROM etudiant WHERE id=?")->execute([$_GET['id']]);
-  $_SESSION['flash']=['ok','Étudiant supprimé.'];
+  $id = (int)$_GET['id'];
+  try {
+    $pdo->beginTransaction();
+
+    // Jereo aloha ny vola efa nalohany
+    $st = $pdo->prepare("SELECT COALESCE(SUM(MontantPayee),0) FROM droit WHERE etudiant_id=?");
+    $st->execute([$id]);
+    $totalEtudiant = (float)$st->fetchColumn();
+
+    // Fafao ny paiements ao droit
+    $pdo->prepare("DELETE FROM droit WHERE etudiant_id=?")->execute([$id]);
+
+    // Fafao ilay étudiant
+    $pdo->prepare("DELETE FROM etudiant WHERE id=?")->execute([$id]);
+
+    $pdo->commit();
+
+    // Flash message manambara ny vola nofafana
+    $msg = $totalEtudiant > 0
+      ? 'Étudiant supprimé — '.number_format($totalEtudiant,0,',',' ').' Ar retiré de l\'encaissé.'
+      : 'Étudiant supprimé.';
+    $_SESSION['flash'] = ['ok', $msg];
+
+  } catch (Exception $e) {
+    $pdo->rollBack();
+    $_SESSION['flash'] = ['error', 'Erreur lors de la suppression.'];
+  }
   header('Location: etudiants.php'); exit;
 }
 
