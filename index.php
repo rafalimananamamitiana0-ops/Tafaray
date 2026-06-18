@@ -6,7 +6,8 @@ $pageTitle = 'Tableau de bord';
 $total = (int)$pdo->query("SELECT COUNT(*) FROM etudiant")->fetchColumn();
 $novices = (int)$pdo->query("SELECT COUNT(*) FROM etudiant WHERE GenerationEt='Novice'")->fetchColumn();
 $anciens = (int)$pdo->query("SELECT COUNT(*) FROM etudiant WHERE GenerationEt='Ancien'")->fetchColumn();
-$totalPaye = (float)$pdo->query("SELECT IFNULL(SUM(MontantPayee),0) FROM droit")->fetchColumn();
+$totalPaye   = $pdo->query("SELECT COALESCE(SUM(MontantPayee), 0) FROM droit")->fetchColumn();
+$nbPaiements = (int)$pdo->query("SELECT COUNT(*) FROM droit")->fetchColumn();
 $recents = $pdo->query("SELECT * FROM etudiant ORDER BY id DESC LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
 include 'includes/header.php';
 ?>
@@ -26,11 +27,16 @@ include 'includes/header.php';
   <div class="stat-value"><?= $anciens ?></div>
   <div class="stat-meta">Étudiants anciens</div>
 </div>
-  <div class="card">
-    <div class="stat-label">Encaissé</div>
-    <div class="stat-value"><?= number_format($totalPaye,0,',',' ') ?></div>
-    <div class="stat-meta">ARIARY cumulés</div>
+ <div class="card">
+  <div class="stat-label">Encaissé</div>
+  <div class="stat-value">
+    <?= number_format((float)$totalPaye, 0, ',', ' ') ?>
+    <small style="font-size:.45em;font-weight:500"> Ar</small>
   </div>
+  <div class="stat-meta">
+    <?= $nbPaiements ?> paiement<?= $nbPaiements !== 1 ? 's' : '' ?> enregistré<?= $nbPaiements !== 1 ? 's' : '' ?>
+  </div>
+</div>
 </div>
 
 <div style="height:28px"></div>
