@@ -1,0 +1,6 @@
+﻿# SQLite DB (auto-créée au runtime)
+data/tafaray.db
+
+# OS files
+.DS_Store
+Thumbs.db
