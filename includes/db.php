@@ -52,17 +52,28 @@ function qrImageUrl(string $data, int $size = 300): string {
   return "https://api.qrserver.com/v1/create-qr-code/?size={$size}x{$size}&data=" . urlencode($data);
 }
 
+
 function fetchQrPng(string $data, int $size = 300): string {
-  $tmp = tempnam(sys_get_temp_dir(), 'qr') . '.png';
-  $img = @file_get_contents(qrImageUrl($data, $size));
-  if ($img === false) {
-    // fallback: stub blank
+  require_once __DIR__ . '/../lib/qrcode.php';
+
+  $tmp = tempnam(sys_get_temp_dir(), 'qr_') . '.png';
+
+  try {
+
+    $qr = QRCode::getMinimumQRCode($data, '1');
+$qr->make();
+
+    // createImage retourne une resource GD ; on l'enregistre en PNG
+    $im = $qr->createImage(6, 2); // 6 = taille pixel par module, 2 = marge
+    imagepng($im, $tmp);
+    imagedestroy($im);
+  } catch (\Throwable $e) {
     $im = imagecreatetruecolor($size, $size);
-    $white = imagecolorallocate($im, 255,255,255);
-    imagefill($im, 0,0,$white);
-    imagepng($im, $tmp); imagedestroy($im);
-  } else {
-    file_put_contents($tmp, $img);
+    $white = imagecolorallocate($im, 255, 255, 255);
+    imagefill($im, 0, 0, $white);
+    imagepng($im, $tmp);
+    imagedestroy($im);
   }
+
   return $tmp;
 }
