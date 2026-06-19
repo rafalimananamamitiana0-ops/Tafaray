@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+
 require __DIR__.'/includes/auth.php';
 requireAuth($pdo);
 
@@ -46,7 +48,7 @@ $code = "SENI-2026-{$et['NomEt']}.{$et['PrenomEt']}";
 $pdf->SetTextColor(0,0,0);
 $pdf->SetFont('Helvetica','B',11);
 $pdf->SetXY($marginX+38, $y+5);
-$pdf->Cell(0,5,utf8_decode($code),0,1);
+$pdf->Cell(0,5,mb_convert_encoding($code, 'ISO-8859-1', 'UTF-8'),0,1);
 
 // Footer band
 $pdf->SetY(265);
@@ -59,7 +61,7 @@ $pdf->Cell(0,5,'TAFARAY-SENI 2026',0,1);
 $pdf->SetTextColor(180,180,180);
 $pdf->SetFont('Helvetica','',8);
 $pdf->SetX(15);
-$pdf->Cell(0,5,utf8_decode('Document officiel - Gestion de la reception des novices'),0,1);
+$pdf->Cell(0,5,mb_convert_encoding('Document officiel - Gestion de la reception des novices', 'ISO-8859-1', 'UTF-8'),0,1);
 
 @unlink($qrPng);
 $pdf->Output('I', 'QR_'.$et['NomEt'].'_'.$et['PrenomEt'].'.pdf');
