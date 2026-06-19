@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+
+// ... ny tohin'ny code-nao
 require __DIR__.'/includes/auth.php';
 requireAuth($pdo);
 
@@ -52,7 +55,7 @@ foreach ($rows as $idx => $et) {
   $pdf->SetTextColor(0,0,0);
   $pdf->SetFont('Helvetica','B',11);
   $pdf->SetXY($marginX+38, $y+5);
-  $pdf->Cell(0,5,utf8_decode($code),0,1);
+  $pdf->Cell(0,5,mb_convert_encoding($code, 'ISO-8859-1', 'UTF-8'),0,1);
 
 
   $i++;
