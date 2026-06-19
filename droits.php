@@ -7,15 +7,7 @@ $action = $_GET['action'] ?? 'list';
 $flash = $_SESSION['flash'] ?? null; unset($_SESSION['flash']);
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
-
-  if (empty($_POST['etudiant_id'])) {
-      $_SESSION['flash'] = ['error', 'Veuillez sélectionner un étudiant dans la liste.'];
-      header('Location: ' . $_SERVER['HTTP_REFERER']);
-      exit;
-  }
-
   $id = $_POST['id'] ?? null;
-
   $data = [
     (int)$_POST['etudiant_id'],
     (float)$_POST['MontantPayee'],
@@ -65,27 +57,13 @@ if ($action==='new' || $action==='edit'):
     <div class="form-grid">
       <div class="full">
         <label>Étudiant</label>
-
-<input
-    type="text"
-    id="etudiant_search"
-    list="liste_etudiants"
-    placeholder="Nom Etudiant..."
-    required
->
-
-<datalist id="liste_etudiants">
-    <?php foreach ($etudiants as $et): ?>
-        <option
-            data-id="<?= $et['id'] ?>"
-            value="<?= e($et['NomEt'].' '.$et['PrenomEt']) ?>">
-        </option>
-    <?php endforeach; ?>
-</datalist>
-
-<input type="hidden" name="etudiant_id" id="etudiant_id" required>
-
-
+        <select name="etudiant_id" required>
+          <?php foreach ($etudiants as $et): ?>
+            <option value="<?= $et['id'] ?>" <?= ($edit['etudiant_id']??'')==$et['id']?'selected':'' ?>>
+              <?= e($et['NomEt'].' '.$et['PrenomEt']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
       </div>
       <div><label>Montant payé (Ar)</label><input type="number" step="0.01" name="MontantPayee" required value="<?= e($edit['MontantPayee']??0) ?>"></div>
       <div><label>Reste à payer (Ar)</label><input type="number" step="0.01" name="RestePayer" required value="<?= e($edit['RestePayer']??0) ?>"></div>
@@ -145,25 +123,6 @@ document.getElementById('searchInput')?.addEventListener('keyup', function() {
         row.style.display = text.includes(filter) ? '' : 'none';
     });
 });
-
-const search = document.getElementById('etudiant_search');
-const hidden = document.getElementById('etudiant_id');
-
-search.addEventListener('change', function() {
-
-    let valeur = this.value;
-    let options = document.querySelectorAll('#liste_etudiants option');
-
-    hidden.value = '';
-
-    options.forEach(option => {
-        if(option.value === valeur){
-            hidden.value = option.dataset.id;
-        }
-    });
-
-});
-
 </script>
 
 
